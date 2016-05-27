@@ -109,6 +109,52 @@ module ComponentsManagement
       else
         puts "\t#{command[1]} is already installed"
       end
+      when 'REMOVE'
+        Component.display_array(command)
+        if $LIST.include? command[1]
+          comp = Component.find_by(command[1])
+          if comp
+            flag = false
+            comp.children.each do |child|
+              if $LIST.include? child
+                puts "\t#{command[1]} is still needed."
+                flag = true;
+                break
+              end
+            end
+            unless flag
+              puts "\tRemoving #{comp.name}"
+              $LIST.delete(comp.name)
+              comp.parents.each do |parent|
+                parent_instance = Component.find_by(parent)
+                flag1 = false
+                parent_instance.children.each do |child|
+                  if $LIST.include? child
+                    flag1 = true
+                    break
+                  end
+                end
+                unless flag1 do
+                  puts "\tRemoving #{parent}"
+                  $LIST.delete(parent)
+                end
+              end
+
+              end
+            end
+
+          else
+            comp = Component.new(command[1]) unless comp
+          end
+        else
+          puts "\t#{command[1]} is not installed"
+        end
+      when 'LIST'
+        Component.display_array(command)
+        $LIST.each do |l|
+          puts "\t#{l}"
+        end
+
     end
   end
 end
